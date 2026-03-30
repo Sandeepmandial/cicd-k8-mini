@@ -1,9 +1,13 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "flask-app"
+    }
+
     stages {
 
-        stage('Clone') {
+        stage('Clone Code') {
             steps {
                 git 'https://github.com/Sandeepmandial/cicd-k8-mini.git'
             }
@@ -11,14 +15,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t flask-app .'
+                bat 'docker build -t %IMAGE_NAME% .'
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Tests in Docker') {
             steps {
-                bat 'pip install flask'
-                bat 'python test_app.py'
+                bat 'docker run --rm %IMAGE_NAME% python test_app.py'
             }
         }
 
@@ -27,6 +30,22 @@ pipeline {
                 bat 'kubectl apply -f deployment.yaml'
                 bat 'kubectl apply -f service.yaml'
             }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat 'kubectl get pods'
+                bat 'kubectl get services'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline executed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check logs.'
         }
     }
 }
