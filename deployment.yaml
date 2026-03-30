@@ -12,9 +12,9 @@ spec:
       labels:
         app: flask-app
     spec:
-  containers:
-- name: flask-container
-  image: flask-app
-  imagePullPolicy: Never
-  ports:
-  - containerPort: 5000
+      containers:
+      - name: flask-container
+        image: flask-app
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
